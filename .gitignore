@@ -1,0 +1,54 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+*.egg-info/
+.eggs/
+build/
+dist/
+venv/
+.venv/
+env/
+
+# Секреты / env
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+*credentials*.json
+*secrets*.json
+
+# Рабочие артефакты сервера
+*.sqlite
+*.sqlite-journal
+*.sqlite-wal
+*.sqlite-shm
+mcp_egrul_data.sqlite*
+opendata_cache/
+dumps/
+
+# Покрытие и отчёты
+.coverage
+coverage.xml
+htmlcov/
+.tox/
+
+# IDE
+.vscode/
+.idea/
+*.code-workspace.local
+.cursor/projects/
+.cursor/rules/_local/
+
+# Системные
+.DS_Store
+Thumbs.db
+desktop.ini
+*.tmp
+*.log
+*.swp

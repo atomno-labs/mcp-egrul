@@ -1,0 +1,65 @@
+# docker-compose для self-host open-версии mcp-egrul.
+#
+# Состав:
+#   * mcp-egrul             — основной контейнер с сервером FastMCP по stdio.
+#                             Публикует MCP через `docker attach`. Том с SQLite.
+#   * mcp-egrul-scheduler   — фоновый cron-демон (apscheduler) с ежедневным
+#                             импортом ЕГРЮЛ и ЕГРИП в 03:00 Europe/Moscow.
+#   * mcp-egrul-import      — one-shot контейнер для ручного импорта дампа
+#                             (`docker compose run --rm mcp-egrul-import ...`).
+services:
+  mcp-egrul:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: atomnolabs/mcp-egrul:${MCP_EGRUL_VERSION:-dev}
+    container_name: mcp-egrul
+    environment:
+      MCP_EGRUL_DB: /data/mcp_egrul_data.sqlite
+      MCP_EGRUL_LOG_LEVEL: ${MCP_EGRUL_LOG_LEVEL:-INFO}
+      MCP_EGRUL_HTTP_TIMEOUT: ${MCP_EGRUL_HTTP_TIMEOUT:-30}
+      MCP_EGRUL_DUMPS_DIR: /data/dumps
+    volumes:
+      - mcp_egrul_data:/data
+      - ./dumps:/data/dumps:ro
+    stdin_open: true
+    tty: false
+    restart: unless-stopped
+
+  mcp-egrul-scheduler:
+    image: atomnolabs/mcp-egrul:${MCP_EGRUL_VERSION:-dev}
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: mcp-egrul-scheduler
+    environment:
+      MCP_EGRUL_DB: /data/mcp_egrul_data.sqlite
+      MCP_EGRUL_LOG_LEVEL: ${MCP_EGRUL_LOG_LEVEL:-INFO}
+      MCP_EGRUL_DUMPS_DIR: /data/dumps
+      TZ: Europe/Moscow
+    volumes:
+      - mcp_egrul_data:/data
+      - ./dumps:/data/dumps:ro
+    command: ["mcp-egrul-scheduler", "--run-now"]
+    restart: unless-stopped
+    depends_on:
+      - mcp-egrul
+
+  mcp-egrul-import:
+    image: atomnolabs/mcp-egrul:${MCP_EGRUL_VERSION:-dev}
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: mcp-egrul-import
+    profiles: ["import"]
+    environment:
+      MCP_EGRUL_DB: /data/mcp_egrul_data.sqlite
+      MCP_EGRUL_DUMPS_DIR: /data/dumps
+      MCP_EGRUL_LOG_LEVEL: ${MCP_EGRUL_LOG_LEVEL:-INFO}
+    volumes:
+      - mcp_egrul_data:/data
+      - ./dumps:/data/dumps:ro
+    command: ["mcp-egrul-import", "--registry", "egrul", "--full"]
+
+volumes:
+  mcp_egrul_data:
