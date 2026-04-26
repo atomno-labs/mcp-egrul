@@ -17,6 +17,56 @@
 
 ---
 
+## [0.1.3] — 2026-04-26
+
+Sync-патч с эталоном `atomno-mcp-fns-check 0.1.1`. Релиз приводит CLI-обвязку,
+ограничения зависимостей и метаданные `pyproject.toml` к общим конвенциям
+портфеля `atomno-mcp-*` ([MCP_BUILD_CHECKLIST.md](https://github.com/atomno-labs)).
+
+### Fixed
+
+- **CLI: `--help` и `--version` больше не вешают процесс.** До 0.1.3
+  `atomno-mcp-egrul --help` запускал FastMCP по stdio, ждал stdin от MCP-клиента
+  и подвисал. Теперь `main()` использует `argparse` и завершается с exit-code 0
+  без запуска сервера.
+- **Loud-fail на невалидный `MCP_EGRUL_LOG_LEVEL`.** Раньше любая опечатка в
+  env-переменной молча падала на дефолтный INFO. Теперь процесс выходит с
+  exit-code 2 и явным сообщением об ошибке.
+
+### Added
+
+- **CLI-флаги**: `--version` / `-V`, `--transport {stdio,http,sse,streamable-http}`,
+  `--host`, `--port`, `--log-level {DEBUG,INFO,WARNING,ERROR,CRITICAL}`.
+- **`tests/test_cli.py`** с 20 тестами на CLI-обвязку (help / version / transport /
+  log-level precedence / loud-fail на невалидный env / парсер-дефолты).
+- **PEP 561 маркер `py.typed`** — IDE и mypy теперь подхватывают type-аннотации
+  пакета `mcp_egrul`. Также добавлены classifiers `Natural Language :: Russian`,
+  `Typing :: Typed`, `Intended Audience :: Financial and Insurance Industry`,
+  `Operating System :: OS Independent` и `Topic :: Software Development :: Libraries :: Python Modules`.
+- **Секция `[project.urls]`** в `pyproject.toml` (Homepage, Repository, Issues,
+  Changelog, Documentation).
+
+### Changed
+
+- **`Development Status :: 3 - Alpha` → `4 - Beta`** — пакет уже опубликован
+  на PyPI (0.1.2) и Smithery, прошёл 365 тестов с 100% покрытием.
+- **Dependency constraints — MAJOR-lock**. Каждая зависимость теперь имеет
+  верхнюю границу по SemVer (например, `httpx>=0.27.0,<1.0.0`). Это защищает
+  пользователей пакета от breaking changes в мажорных релизах вышестоящих
+  библиотек:
+  - `fastmcp>=0.2.0` → `fastmcp>=0.2.0,<4.0.0`
+  - `httpx>=0.27.0` → `httpx>=0.27.0,<1.0.0`
+  - `pydantic>=2.6.0` → `pydantic>=2.6.0,<3.0.0`
+  - `aiosqlite>=0.20.0` → `aiosqlite>=0.20.0,<1.0.0`
+  - `python-dateutil>=2.9.0` → `python-dateutil>=2.9.0,<3.0.0`
+  - `lxml>=5.2.0` → `lxml>=5.2.0,<7.0.0`
+  - `apscheduler>=3.10.0` → `apscheduler>=3.10.0,<4.0.0`
+- **`main(argv: list[str] | None = None) -> int`** — сигнатура изменена для
+  тестируемости. Возвращает exit-code (0/2). Вызов из `if __name__ == "__main__":`
+  обёрнут в `raise SystemExit(main())`.
+
+---
+
 ## [0.1.2] — 2026-04-26
 
 Брендовая унификация PyPI с парным проектом `atomno-mcp-fns-check`.
@@ -153,7 +203,8 @@ Catalog-патч. Основной код пакета не меняется —
 
 MIT (`LICENSE` в корне пакета).
 
-[Unreleased]: https://github.com/atomno-labs/mcp-egrul/compare/v0.1.2...HEAD
+[Unreleased]: https://github.com/atomno-labs/mcp-egrul/compare/v0.1.3...HEAD
+[0.1.3]: https://github.com/atomno-labs/mcp-egrul/releases/tag/v0.1.3
 [0.1.2]: https://github.com/atomno-labs/mcp-egrul/releases/tag/v0.1.2
 [0.1.1]: https://github.com/atomno-labs/mcp-egrul/releases/tag/v0.1.1
 [0.1.0]: https://github.com/atomno-labs/mcp-egrul/releases/tag/v0.1.0

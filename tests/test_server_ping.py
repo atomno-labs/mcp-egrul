@@ -206,9 +206,8 @@ async def test_bulk_cards_over_limit_returns_error(isolated_ctx: None) -> None:
 
 def test_main_exits_2_on_invalid_config(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("MCP_EGRUL_HTTP_TIMEOUT", "not-a-float")
-    with pytest.raises(SystemExit) as exc_info:
-        server_module.main()
-    assert exc_info.value.code == 2
+    rc = server_module.main([])
+    assert rc == 2
 
 
 def test_main_invokes_mcp_run(
@@ -218,14 +217,17 @@ def test_main_invokes_mcp_run(
     monkeypatch.setenv("MCP_EGRUL_DUMPS_DIR", str(tmp_path / "dumps"))
     monkeypatch.delenv("ATOMNO_API_KEY", raising=False)
 
-    called: dict[str, bool] = {"ran": False}
+    called: dict[str, Any] = {"ran": False, "kwargs": None}
 
-    def _fake_run() -> None:
+    def _fake_run(**kwargs: Any) -> None:
         called["ran"] = True
+        called["kwargs"] = kwargs
 
     monkeypatch.setattr(server_module.mcp, "run", _fake_run)
-    server_module.main()
+    rc = server_module.main([])
+    assert rc == 0
     assert called["ran"] is True
+    assert called["kwargs"] == {"transport": "stdio"}
 
 
 # ---------------------------------------------------------------------------

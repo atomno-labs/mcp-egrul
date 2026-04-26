@@ -20,9 +20,11 @@ fallback или «вернули null».
 
 from __future__ import annotations
 
+import argparse
 import asyncio
 import atexit
 import logging
+import os
 from typing import Any
 
 from fastmcp import FastMCP
@@ -229,29 +231,133 @@ async def bulk_cards(inns: list[str]) -> dict[str, Any]:
 # Точка входа CLI.
 # ---------------------------------------------------------------------------
 
+_SUPPORTED_TRANSPORTS = ("stdio", "http", "sse", "streamable-http")
+_DEFAULT_TRANSPORT = "stdio"
+_DEFAULT_HTTP_HOST = "127.0.0.1"
+_DEFAULT_HTTP_PORT = 8000
+_VALID_LOG_LEVELS = ("DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL")
+_LOG_LEVEL_ENV_VAR = "MCP_EGRUL_LOG_LEVEL"
 
-def main() -> None:
-    """Запустить FastMCP по stdio."""
+
+def _build_arg_parser() -> argparse.ArgumentParser:
+    """Создать argparse-парсер для CLI `atomno-mcp-egrul`."""
+    parser = argparse.ArgumentParser(
+        prog="atomno-mcp-egrul",
+        description=(
+            "MCP-сервер для ЕГРЮЛ/ЕГРИП РФ: восемь тулзов поиска и карточек "
+            "юр.лиц/ИП через open-data ФНС или hosted-эндпоинт api.atomno.ru."
+        ),
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+    )
+    parser.add_argument(
+        "--version", "-V",
+        action="version",
+        version=f"atomno-mcp-egrul {__version__}",
+    )
+    parser.add_argument(
+        "--transport", "-t",
+        choices=_SUPPORTED_TRANSPORTS,
+        default=_DEFAULT_TRANSPORT,
+        help=(
+            "MCP-транспорт. По умолчанию stdio (для Cursor / Claude Desktop / Cline). "
+            "Сетевые транспорты используют --host / --port."
+        ),
+    )
+    parser.add_argument(
+        "--host",
+        default=_DEFAULT_HTTP_HOST,
+        help=(
+            f"Host для http/sse/streamable-http транспортов "
+            f"(по умолчанию {_DEFAULT_HTTP_HOST})."
+        ),
+    )
+    parser.add_argument(
+        "--port",
+        type=int,
+        default=_DEFAULT_HTTP_PORT,
+        help=(
+            f"Port для http/sse/streamable-http транспортов "
+            f"(по умолчанию {_DEFAULT_HTTP_PORT})."
+        ),
+    )
+    parser.add_argument(
+        "--log-level", "-l",
+        choices=_VALID_LOG_LEVELS,
+        default=None,
+        help=(
+            "Уровень логирования. Приоритет над env-переменной "
+            f"{_LOG_LEVEL_ENV_VAR}. По умолчанию используется значение из env "
+            "или INFO если env не задан."
+        ),
+    )
+    return parser
+
+
+def _resolve_log_level(cli_value: str | None) -> str:
+    """CLI > env > config-default. Невалидный env валит процесс с exit-кодом 2."""
+    if cli_value is not None:
+        return cli_value.upper()
+    env_value = os.environ.get(_LOG_LEVEL_ENV_VAR)
+    if env_value is not None:
+        normalized = env_value.strip().upper()
+        if normalized not in _VALID_LOG_LEVELS:
+            raise ValidationError(
+                f"{_LOG_LEVEL_ENV_VAR}='{env_value}' — допустимые значения: "
+                f"{', '.join(_VALID_LOG_LEVELS)}",
+                hint=f"Установите {_LOG_LEVEL_ENV_VAR} в одно из {_VALID_LOG_LEVELS}.",
+                details={"env_var": _LOG_LEVEL_ENV_VAR, "got": env_value},
+            )
+        return normalized
+    return "INFO"
+
+
+def main(argv: list[str] | None = None) -> int:
+    """Запустить FastMCP-сервер mcp-egrul с argparse-CLI.
+
+    Args:
+        argv: список аргументов (без `argv[0]`). По умолчанию берётся `sys.argv[1:]`.
+
+    Returns:
+        Exit-code: 0 при штатном завершении, 2 при невалидной конфигурации.
+    """
+    parser = _build_arg_parser()
+    args = parser.parse_args(argv)
+
     try:
-        ctx_template = ServiceContext.from_env()
+        log_level = _resolve_log_level(args.log_level)
     except ValidationError as exc:
-        logging.basicConfig(level="INFO")
-        logger.error("mcp-egrul: невалидная конфигурация — %s", exc.message_ru)
-        raise SystemExit(2) from exc
+        logging.basicConfig(level="INFO", force=True)
+        logger.error("mcp-egrul: невалидный log-level — %s", exc.message_ru)
+        return 2
 
-    log_level = ctx_template.config.log_level
     logging.basicConfig(
         level=log_level,
         format="%(asctime)s %(levelname)s %(name)s: %(message)s",
+        force=True,
     )
+
+    try:
+        ctx_template = ServiceContext.from_env()
+    except ValidationError as exc:
+        logger.error("mcp-egrul: невалидная конфигурация — %s", exc.message_ru)
+        return 2
+
     logger.info(
-        "mcp-egrul %s starting (db=%s, hosted=%s)",
+        "mcp-egrul %s starting (transport=%s, db=%s, hosted=%s)",
         __version__,
+        args.transport,
         ctx_template.config.db_path,
         ctx_template.config.hosted_mode_enabled,
     )
-    mcp.run()
+
+    run_kwargs: dict[str, Any] = {"transport": args.transport}
+    if args.transport in ("http", "sse", "streamable-http"):
+        run_kwargs["host"] = args.host
+        run_kwargs["port"] = args.port
+
+    mcp.run(**run_kwargs)
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())
