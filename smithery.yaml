@@ -1,0 +1,41 @@
+# Smithery configuration file: https://smithery.ai/docs/config#smitheryyaml
+
+startCommand:
+  type: stdio
+  configSchema:
+    # JSON Schema defining the configuration options for the MCP server.
+    type: object
+    required: []
+    properties:
+      atomnoApiKey:
+        type: string
+        description: >-
+          API key for atomno.ru Hosted Pro mode (optional).
+          Without key the server runs in OSS mode using a local SQLite database
+          (≥30 GB) populated from FNS open-data dumps.
+      atomnoApiBase:
+        type: string
+        default: https://api.atomno.ru/mcp-egrul/v1
+        description: Base URL of the atomno.ru Hosted Pro endpoint (only used if atomnoApiKey is set).
+      logLevel:
+        type: string
+        enum:
+          - DEBUG
+          - INFO
+          - WARNING
+          - ERROR
+          - CRITICAL
+        default: INFO
+        description: Log level for the server (default INFO).
+  commandFunction:
+    # A function that produces the CLI command to start the MCP server on stdio.
+    |-
+    (config) => ({
+      command: 'uvx',
+      args: ['mcp-egrul'],
+      env: {
+        ATOMNO_API_KEY: config.atomnoApiKey || '',
+        ATOMNO_API_BASE: config.atomnoApiBase || 'https://api.atomno.ru/mcp-egrul/v1',
+        MCP_EGRUL_LOG_LEVEL: config.logLevel || 'INFO'
+      }
+    })
