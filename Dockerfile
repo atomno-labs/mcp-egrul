@@ -27,4 +27,4 @@ ENV MCP_EGRUL_DB=/data/mcp_egrul_data.sqlite \
     MCP_EGRUL_DUMPS_DIR=/data/dumps \
     MCP_EGRUL_LOG_LEVEL=INFO
 
-ENTRYPOINT ["mcp-egrul"]
+ENTRYPOINT ["atomno-mcp-egrul"]

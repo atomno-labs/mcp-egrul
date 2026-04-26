@@ -40,7 +40,7 @@ services:
     volumes:
       - mcp_egrul_data:/data
       - ./dumps:/data/dumps:ro
-    command: ["mcp-egrul-scheduler", "--run-now"]
+    command: ["atomno-mcp-egrul-scheduler", "--run-now"]
     restart: unless-stopped
     depends_on:
       - mcp-egrul
@@ -59,7 +59,7 @@ services:
     volumes:
       - mcp_egrul_data:/data
       - ./dumps:/data/dumps:ro
-    command: ["mcp-egrul-import", "--registry", "egrul", "--full"]
+    command: ["atomno-mcp-egrul-import", "--registry", "egrul", "--full"]
 
 volumes:
   mcp_egrul_data:

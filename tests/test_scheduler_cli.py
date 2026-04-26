@@ -1,4 +1,4 @@
-"""Тесты CLI `mcp-egrul-scheduler`: регистрация cron-job'ов, парсинг аргументов,
+"""Тесты CLI `atomno-mcp-egrul-scheduler`: регистрация cron-job'ов, парсинг аргументов,
 поведение `_run_daily_ingest` при разных исходах ingest'а.
 """
 

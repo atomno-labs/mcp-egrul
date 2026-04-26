@@ -2,7 +2,7 @@
 
 Каждый `Source` умеет запустить полный или инкрементальный ингест в
 `SQLiteStore`. Тулзы НЕ обращаются к `Source` напрямую — только CLI
-`mcp-egrul-import` и (позже) cron-скрипт дневного обновления.
+`atomno-mcp-egrul-import` и (позже) cron-скрипт дневного обновления.
 """
 
 from __future__ import annotations

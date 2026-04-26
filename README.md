@@ -2,7 +2,7 @@
 
 > MCP-сервер (Model Context Protocol — открытый протокол подключения AI-ассистентов к внешним инструментам) для работы с ЕГРЮЛ (Единый Государственный Реестр Юридических Лиц РФ) и ЕГРИП (Единый Государственный Реестр Индивидуальных Предпринимателей). Источник — официальные open-data дампы ФНС (Федеральной налоговой службы).
 
-**Статус:** `v0.1.1` — open-версия (self-host через SQLite) полностью готова + клиентская часть hosted Pro (HTTP-клиент `HostedClient` для `api.atomno.ru`). Опубликована на [PyPI](https://pypi.org/project/mcp-egrul/), индексирована в [Glama](https://glama.ai/mcp/servers) и [Smithery](https://smithery.ai/). Сама hosted Pro-инфра — в активной разработке. **Coverage `100.00%`** (345 тестов, ruff clean, fastmcp 3.2.4, enforced через `--cov-fail-under=100`).
+**Статус:** `v0.1.2` — open-версия (self-host через SQLite) полностью готова + клиентская часть hosted Pro (HTTP-клиент `HostedClient` для `api.atomno.ru`). Опубликована на [PyPI](https://pypi.org/project/atomno-mcp-egrul/), индексирована в [Glama](https://glama.ai/mcp/servers) и [Smithery](https://smithery.ai/). Сама hosted Pro-инфра — в активной разработке. **Coverage `100.00%`** (345 тестов, ruff clean, fastmcp 3.2.4, enforced через `--cov-fail-under=100`).
 
 **Парный проект:** [`mcp-fns-check`](https://github.com/atomno-labs/mcp-fns-check) (risk-чек-слой поверх ЕГРЮЛ).
 
@@ -34,15 +34,15 @@
 
 ```bash
 # Без локального clone — работает «из коробки»
-uvx mcp-egrul
+uvx atomno-mcp-egrul
 
 # Или установка глобально
-pipx install mcp-egrul
-mcp-egrul
+pipx install atomno-mcp-egrul
+atomno-mcp-egrul
 
 # Или классический pip в venv
-pip install mcp-egrul
-mcp-egrul
+pip install atomno-mcp-egrul
+atomno-mcp-egrul
 ```
 
 ### Вариант 2 — dev-режим (для разработчиков)
@@ -70,7 +70,7 @@ pip install -e ".[dev]"
 ## Запуск
 
 ```bash
-mcp-egrul
+atomno-mcp-egrul
 ```
 
 Транспорт по умолчанию — **stdio** (стандартный ввод/вывод JSON-RPC). Подходит для подключения к Cursor / Claude Desktop / Claude Code.
@@ -82,7 +82,7 @@ mcp-egrul
   "mcpServers": {
     "egrul": {
       "command": "uvx",
-      "args": ["mcp-egrul"]
+      "args": ["atomno-mcp-egrul"]
     }
   }
 }
@@ -95,13 +95,13 @@ mcp-egrul
   "mcpServers": {
     "egrul": {
       "command": "uvx",
-      "args": ["mcp-egrul"]
+      "args": ["atomno-mcp-egrul"]
     }
   }
 }
 ```
 
-> Если не используете `uv`, замените `"command": "uvx", "args": ["mcp-egrul"]` на `"command": "mcp-egrul"` (требует `pip install mcp-egrul` или `pipx install mcp-egrul`).
+> Если не используете `uv`, замените `"command": "uvx", "args": ["atomno-mcp-egrul"]` на `"command": "atomno-mcp-egrul"` (требует `pip install atomno-mcp-egrul` или `pipx install atomno-mcp-egrul`).
 
 ---
 
@@ -119,9 +119,9 @@ cp ~/Downloads/EGRIP_*.zip dumps/egrip/2026-04-24/
 
 # 2. Первоначальный полный импорт (однократно, ~30-60 минут):
 docker compose --profile import run --rm \
-    mcp-egrul-import mcp-egrul-import --registry egrul --full
+    mcp-egrul-import atomno-mcp-egrul-import --registry egrul --full
 docker compose --profile import run --rm \
-    mcp-egrul-import mcp-egrul-import --registry egrip --full
+    mcp-egrul-import atomno-mcp-egrul-import --registry egrip --full
 
 # 3. Запустите сервер + фоновый cron-демон:
 docker compose up -d
@@ -142,7 +142,7 @@ docker compose logs -f mcp-egrul-scheduler
         └── YYYY-MM-DD/*.zip
 ```
 
-Cron-демон (`mcp-egrul-scheduler`) сам забирает самую свежую выгрузку после
+Cron-демон (`atomno-mcp-egrul-scheduler`) сам забирает самую свежую выгрузку после
 того как вы положите её в `dumps/<registry>/<YYYY-MM-DD>/` — ночью в 03:00
 Europe/Moscow. Если ничего нового нет — job завершится с `nothing_to_import`
 и никаких лишних записей в `import_log` не сделает.
@@ -164,20 +164,20 @@ CLI:
 
 ```bash
 # Полный первоначальный импорт (однократно):
-mcp-egrul-import --registry egrul --full
-mcp-egrul-import --registry egrip --full
+atomno-mcp-egrul-import --registry egrul --full
+atomno-mcp-egrul-import --registry egrip --full
 
 # Инкремент (cron / ручной): загружается только если появилась более
 # свежая YYYY-MM-DD-папка, чем последний успешный `import_log.source_dump_date`.
 # Если новее нет — exit-code 5 и сообщение `nothing_to_import`.
-mcp-egrul-import --registry egrul --incremental
+atomno-mcp-egrul-import --registry egrul --incremental
 
 # Фоновой cron-демон с ежедневным 03:00 MSK (вызывать вручную редко;
 # обычно запускается сервисом mcp-egrul-scheduler в docker-compose).
-mcp-egrul-scheduler --run-now
+atomno-mcp-egrul-scheduler --run-now
 ```
 
-Exit-коды `mcp-egrul-import`:
+Exit-коды `atomno-mcp-egrul-import`:
 
 | Код | Значение |
 |---|---|
@@ -206,7 +206,8 @@ Exit-коды `mcp-egrul-import`:
 {
   "mcpServers": {
     "egrul": {
-      "command": "mcp-egrul",
+      "command": "uvx",
+      "args": ["atomno-mcp-egrul"],
       "env": {
         "ATOMNO_API_KEY": "your-pro-key-here"
       }
@@ -291,8 +292,8 @@ apps/mcp-egrul/
 │   │   └── bulk_cards.py
 │   └── scripts/
 │       ├── __init__.py
-│       ├── import_opendata.py          # CLI `mcp-egrul-import` (ручной / одноразовый)
-│       └── scheduler.py                # CLI `mcp-egrul-scheduler` (apscheduler cron 03:00 MSK)
+│       ├── import_opendata.py          # CLI `atomno-mcp-egrul-import` (ручной / одноразовый)
+│       └── scheduler.py                # CLI `atomno-mcp-egrul-scheduler` (apscheduler cron 03:00 MSK)
 └── tests/
     ├── __init__.py
     ├── conftest.py
@@ -309,8 +310,8 @@ apps/mcp-egrul/
     ├── test_opendata_parser.py         # XML-парсер (zip, xml, skip-на-неизвестный-статус)
     ├── test_opendata_source.py         # OpenDataSource.run_ingest (full/incremental)
     ├── test_integration_import.py      # Полный цикл import → search → get_card
-    ├── test_import_cli.py              # CLI `mcp-egrul-import`
-    ├── test_scheduler_cli.py           # CLI `mcp-egrul-scheduler` + _run_scheduler
+    ├── test_import_cli.py              # CLI `atomno-mcp-egrul-import`
+    ├── test_scheduler_cli.py           # CLI `atomno-mcp-egrul-scheduler` + _run_scheduler
     └── test_hosted_adapter.py          # HostedClient + маршрутизация тулзов (respx-моки)
 ```
 
@@ -332,7 +333,7 @@ pytest -v --cov=src/mcp_egrul
 * XML-парсер ЕГРЮЛ/ЕГРИП (zip, xml, skip-запись с неизвестным статусом);
 * `OpenDataSource.run_ingest` (full/incremental/`nothing_to_import`);
 * полный интеграционный цикл `import fixture → search → get_card → bulk`;
-* обе CLI (`mcp-egrul-import`, `mcp-egrul-scheduler`) — регистрация cron-job'ов, парсинг
+* обе CLI (`atomno-mcp-egrul-import`, `atomno-mcp-egrul-scheduler`) — регистрация cron-job'ов, парсинг
   аргументов, `_run_daily_ingest` на all-happy/`nothing_to_import`/`McpEgrulError`, полный цикл
   `_run_scheduler` с mock-ed `asyncio.Event`;
 * FastMCP tool-layer через `mcp.call_tool()` — сериализация ошибок в структурированные dict'ы,
@@ -348,7 +349,7 @@ pytest -v --cov=src/mcp_egrul
 * приватные helper'ы SQLite-стора (`_wrap`, `_prepare_row`, `_row_to_dict`, `_normalize_bm25`,
   auto-init через `_ensure`, rejecting invalid `finish_import` статусов);
 * `ServiceContext` reentry-идемпотентность, `atexit`-cleanup, `Config.from_env` ValidationError
-  → exit-code 2 из `mcp-egrul-import` CLI.
+  → exit-code 2 из `atomno-mcp-egrul-import` CLI.
 
 Внешние API **никогда не вызываются напрямую** из тестов — только через `respx` (HTTP-мокинг) и
 локальные XML-фикстуры (`tests/fixtures/`).

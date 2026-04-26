@@ -135,7 +135,7 @@ class NotImplementedInPhase(McpEgrulError):
 class NothingToImportError(McpEgrulError):
     """Инкрементальный импорт не нашёл более свежего дампа, чем уже в БД.
 
-    Отдельный подкласс, чтобы CLI `mcp-egrul-import` мог различать «нечего
+    Отдельный подкласс, чтобы CLI `atomno-mcp-egrul-import` мог различать «нечего
     делать» (код выхода 5, cron-friendly) и «реально сломалось» — без
     парсинга текста сообщения.
     """

@@ -32,7 +32,7 @@ startCommand:
     |-
     (config) => ({
       command: 'uvx',
-      args: ['mcp-egrul'],
+      args: ['atomno-mcp-egrul'],
       env: {
         ATOMNO_API_KEY: config.atomnoApiKey || '',
         ATOMNO_API_BASE: config.atomnoApiBase || 'https://api.atomno.ru/mcp-egrul/v1',

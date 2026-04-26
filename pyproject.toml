@@ -3,8 +3,8 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "mcp-egrul"
-version = "0.1.1"
+name = "atomno-mcp-egrul"
+version = "0.1.2"
 description = "MCP server for Russian EGRUL / EGRIP lookups via ФНС open-data (search, cards, founders, director, bulk)."
 readme = "README.md"
 requires-python = ">=3.11"
@@ -49,9 +49,9 @@ dev = [
 ]
 
 [project.scripts]
-mcp-egrul = "mcp_egrul.server:main"
-mcp-egrul-import = "mcp_egrul.scripts.import_opendata:main"
-mcp-egrul-scheduler = "mcp_egrul.scripts.scheduler:main"
+atomno-mcp-egrul = "mcp_egrul.server:main"
+atomno-mcp-egrul-import = "mcp_egrul.scripts.import_opendata:main"
+atomno-mcp-egrul-scheduler = "mcp_egrul.scripts.scheduler:main"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/mcp_egrul"]

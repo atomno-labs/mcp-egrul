@@ -1,4 +1,4 @@
-"""CLI `mcp-egrul-import`: импорт open-data дампов ФНС в локальный SQLite.
+"""CLI `atomno-mcp-egrul-import`: импорт open-data дампов ФНС в локальный SQLite.
 
 Поведение:
     * Читает `dumps_dir/<registry>/<YYYY-MM-DD>/*.(xml|zip)`, парсит
@@ -37,7 +37,7 @@ logger = logging.getLogger("mcp_egrul.import")
 
 def _build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        prog="mcp-egrul-import",
+        prog="atomno-mcp-egrul-import",
         description=(
             "Импорт ЕГРЮЛ/ЕГРИП open-data дампов ФНС в локальный SQLite. "
             "Положите скачанные .zip/.xml в "

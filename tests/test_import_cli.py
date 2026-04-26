@@ -1,4 +1,4 @@
-"""Тесты CLI `mcp-egrul-import` (Phase 1 — реальный импорт)."""
+"""Тесты CLI `atomno-mcp-egrul-import` (Phase 1 — реальный импорт)."""
 
 from __future__ import annotations
 

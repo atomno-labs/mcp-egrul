@@ -76,7 +76,7 @@ def build_company_card(row: dict[str, Any] | None, *, identifier: str) -> Compan
             f"Компания не найдена в локальном слепке: {identifier}.",
             hint=(
                 "Возможно, данные ещё не импортированы. "
-                "Запустите `mcp-egrul-import` (Phase 1) или задайте "
+                "Запустите `atomno-mcp-egrul-import` (Phase 1) или задайте "
                 "ATOMNO_API_KEY для hosted-режима."
             ),
             details={"identifier": identifier},
@@ -136,7 +136,7 @@ def build_ie_card(row: dict[str, Any] | None, *, identifier: str) -> IECard:
             f"Индивидуальный предприниматель не найден: {identifier}.",
             hint=(
                 "Возможно, данные ещё не импортированы. "
-                "Запустите `mcp-egrul-import --registry egrip` (Phase 1) или "
+                "Запустите `atomno-mcp-egrul-import --registry egrip` (Phase 1) или "
                 "задайте ATOMNO_API_KEY для hosted-режима."
             ),
             details={"identifier": identifier},

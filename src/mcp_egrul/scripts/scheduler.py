@@ -1,4 +1,4 @@
-"""CLI `mcp-egrul-scheduler`: cron-демон для ежедневного импорта ЕГРЮЛ/ЕГРИП.
+"""CLI `atomno-mcp-egrul-scheduler`: cron-демон для ежедневного импорта ЕГРЮЛ/ЕГРИП.
 
 Запускается как отдельный процесс (в docker-compose — отдельный сервис).
 Крутит внутри себя `AsyncIOScheduler` из `apscheduler` с двумя cron-job'ами:
@@ -167,7 +167,7 @@ async def _run_scheduler(*, run_now: bool) -> int:
 
 def _build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        prog="mcp-egrul-scheduler",
+        prog="atomno-mcp-egrul-scheduler",
         description=(
             "Cron-демон для ежедневного импорта ЕГРЮЛ/ЕГРИП (03:00 "
             "Europe/Moscow, инкрементально)."

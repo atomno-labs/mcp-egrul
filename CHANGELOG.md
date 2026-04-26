@@ -17,7 +17,54 @@
 
 ---
 
-## [0.1.1] — 2026-04-26
+## [0.1.2] — 2026-04-26
+
+Брендовая унификация PyPI с парным проектом `atomno-mcp-fns-check`.
+Старый PyPI-пакет `mcp-egrul==0.1.1` помечен `yanked`.
+
+### Изменено (BREAKING для PyPI)
+
+- **PyPI имя пакета**: `mcp-egrul` → **`atomno-mcp-egrul`**.
+  Установка теперь: `uvx atomno-mcp-egrul` / `pipx install atomno-mcp-egrul` /
+  `pip install atomno-mcp-egrul`.
+- **CLI commands**:
+  - `mcp-egrul` → `atomno-mcp-egrul`,
+  - `mcp-egrul-import` → `atomno-mcp-egrul-import`,
+  - `mcp-egrul-scheduler` → `atomno-mcp-egrul-scheduler`.
+- **Dockerfile** `ENTRYPOINT` обновлён на `atomno-mcp-egrul`.
+- **`docker-compose.yml`** commands обновлены (service names и
+  `container_name` оставлены как `mcp-egrul-*` — это локальные алиасы).
+- **`smithery.yaml`** обновлён: `args: ['atomno-mcp-egrul']`.
+- **README**: все команды установки и snippets для Cursor / Claude Desktop /
+  Claude Code приведены к новому имени.
+
+### Не изменилось
+
+- **Python module name** внутри пакета остаётся `mcp_egrul`
+  (видно только в `from mcp_egrul.X import ...` внутри своего кода —
+  публичный API не меняется).
+- **GitHub repo** остаётся `atomno-labs/mcp-egrul` (org даёт брендирование).
+- **FastMCP server name** в `initialize`/`ping` ответе остаётся `mcp-egrul`
+  (стабильный контракт для существующих клиентов).
+- **Логика, тулзы, схемы, БД** — без изменений (568 тестов проходят без
+  правок логики, только обновлены docstrings).
+
+### Миграция для пользователей `mcp-egrul==0.1.1`
+
+```bash
+pip uninstall mcp-egrul
+pip install atomno-mcp-egrul
+# в .cursor/mcp.json и claude_desktop_config.json:
+# "command": "uvx", "args": ["atomno-mcp-egrul"]
+```
+
+---
+
+## [0.1.1] — 2026-04-26 [YANKED]
+
+> **Yanked**: имя пакета `mcp-egrul` помечено deprecated в пользу
+> `atomno-mcp-egrul` (см. [0.1.2]). Команда `pip install mcp-egrul`
+> без явного `==0.1.1` больше не сработает.
 
 Catalog-патч. Основной код пакета не меняется — добавлены метаданные для
 индексации в каталогах MCP-серверов.
@@ -29,7 +76,7 @@ Catalog-патч. Основной код пакета не меняется —
 - **`glama.json`** в корне репо — claim ownership на Glama.ai под org
   `atomno-labs`.
 - **Первая публикация на PyPI** — `pip install mcp-egrul` или
-  `uvx mcp-egrul`.
+  `uvx mcp-egrul` (yanked в 0.1.2).
 
 ### Изменено
 
@@ -106,6 +153,7 @@ Catalog-патч. Основной код пакета не меняется —
 
 MIT (`LICENSE` в корне пакета).
 
-[Unreleased]: https://github.com/atomno-labs/mcp-egrul/compare/v0.1.1...HEAD
+[Unreleased]: https://github.com/atomno-labs/mcp-egrul/compare/v0.1.2...HEAD
+[0.1.2]: https://github.com/atomno-labs/mcp-egrul/releases/tag/v0.1.2
 [0.1.1]: https://github.com/atomno-labs/mcp-egrul/releases/tag/v0.1.1
 [0.1.0]: https://github.com/atomno-labs/mcp-egrul/releases/tag/v0.1.0
